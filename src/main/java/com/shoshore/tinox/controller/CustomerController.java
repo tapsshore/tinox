@@ -1,11 +1,14 @@
 package com.shoshore.tinox.controller;
 
+import com.shoshore.tinox.exception.TinoxException;
 import com.shoshore.tinox.model.CustomerRequest;
 import com.shoshore.tinox.repository.CustomerRepository;
 import com.shoshore.tinox.service.customer.CustomerService;
 import com.shoshore.tinox.util.CustomerResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author : tapiwanasheshoshore
@@ -29,6 +32,14 @@ public class CustomerController {
     @ResponseBody
     public CustomerResponse createCustomer(@RequestBody CustomerRequest customerRequest) {
         return customerService.createCustomer(customerRequest);
+    }
+
+    //update a Customer
+    @PostMapping(value = "/update", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public CustomerResponse updateCustomerById(
+            @RequestBody CustomerRequest customerRequest) throws TinoxException, InvocationTargetException, IllegalAccessException {
+        return customerService.updateCustomerById(customerRequest);
     }
 
 }

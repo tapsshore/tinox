@@ -7,5 +7,6 @@ package com.shoshore.tinox.util;
  **/
 public class AppConstants {
     public static final String MISSING_FIELD = "Missing field";
+    public static final String INVALID_CUSTOMER= "Invalid Customer";
 
 }

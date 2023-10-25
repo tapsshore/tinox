@@ -6,6 +6,10 @@ import com.shoshore.tinox.repository.CustomerRepository;
 import com.shoshore.tinox.util.AppConstants;
 import com.shoshore.tinox.util.CustomerResponse;
 import com.shoshore.tinox.util.RequestResponse;
+import org.apache.commons.beanutils.BeanUtilsBean;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.Optional;
 
 /**
  * @author : tapiwanasheshoshore
@@ -28,6 +32,38 @@ public class CustomerServiceImpl implements CustomerService{
         customer = customerRepository.save(customer);
         return RequestResponse.getOKResponse(customer);
     }
+
+    @Override
+    public CustomerResponse updateCustomerById(CustomerRequest customerRequest) throws InvocationTargetException, IllegalAccessException {
+        // Check if Customer exists
+        if (customerRequest.getId() == null) {
+            return RequestResponse.getBADResponse(AppConstants.INVALID_CUSTOMER);
+        }
+        Optional<Customer> existingPolicyOptional = customerRepository.findCustomerById(customerRequest.getId());
+        if (existingPolicyOptional.isEmpty()) {
+            return RequestResponse.getBADResponse("Customer not found");
+        }
+        Customer existingPolicy = existingPolicyOptional.get();
+        updateNonNullFields(customerRequest, existingPolicy);
+
+        Customer updatedCustomer = customerRepository.save(existingPolicy);
+        return RequestResponse.getOKResponse(updatedCustomer);
+    }
+    // Helper method to update non-null fields
+    private void updateNonNullFields(CustomerRequest source, Customer target)
+            throws IllegalAccessException, InvocationTargetException {
+        BeanUtilsBean notNullBean = new NullAwareBeanUtilsBean();
+        notNullBean.copyProperties(target, source);
+    }
+    public static class NullAwareBeanUtilsBean extends BeanUtilsBean {
+        @Override
+        public void copyProperty(Object dest, String name, Object value) throws IllegalAccessException, InvocationTargetException {
+            if (value != null) {
+                super.copyProperty(dest, name, value);
+            }
+        }
+    }
+
     public static CustomerResponse validateEmptyFields(CustomerRequest customerRequest) {
         if (customerRequest.getFirstName().isEmpty()
                 || customerRequest.getLastName().isEmpty()){
