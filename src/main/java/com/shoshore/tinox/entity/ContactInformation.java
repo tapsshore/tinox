@@ -3,6 +3,7 @@ package com.shoshore.tinox.entity;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author : tapiwanasheshoshore
@@ -11,6 +12,7 @@ import lombok.Getter;
  **/
 @Embeddable
 @Getter
+@Setter
 public class ContactInformation {
     private String emailAddress;
 
