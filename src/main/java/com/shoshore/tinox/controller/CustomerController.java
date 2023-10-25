@@ -38,7 +38,7 @@ public class CustomerController {
     @PostMapping(value = "/update", consumes = "application/json", produces = "application/json")
     @ResponseBody
     public CustomerResponse updateCustomerById(
-            @RequestBody CustomerRequest customerRequest) throws TinoxException, InvocationTargetException, IllegalAccessException {
+            @RequestBody CustomerRequest customerRequest) throws InvocationTargetException, IllegalAccessException {
         return customerService.updateCustomerById(customerRequest);
     }
 
