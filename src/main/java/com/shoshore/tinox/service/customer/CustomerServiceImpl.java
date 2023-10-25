@@ -1,22 +1,27 @@
 package com.shoshore.tinox.service.customer;
 
 import com.shoshore.tinox.entity.Customer;
+import com.shoshore.tinox.enums.CustomerStatus;
 import com.shoshore.tinox.model.CustomerRequest;
 import com.shoshore.tinox.repository.CustomerRepository;
 import com.shoshore.tinox.util.AppConstants;
 import com.shoshore.tinox.util.CustomerResponse;
 import com.shoshore.tinox.util.RequestResponse;
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author : tapiwanasheshoshore
  * @mailto : tapsshore@gmail.com
  * @created : 25/10/2023, Wednesday
  **/
-public class CustomerServiceImpl implements CustomerService{
+public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
 
@@ -59,6 +64,96 @@ public class CustomerServiceImpl implements CustomerService{
         return RequestResponse.getBADResponse("Invalid Customer Id");
     }
 
+    @Override
+    public CustomerResponse deleteCustomerById(long id) {
+        if (id > 0) {
+            Optional<Customer> customerOptional = customerRepository.findById(id);
+            if (customerOptional.isPresent()) {
+                customerRepository.deleteById(id);
+                return RequestResponse.getOKResponse("Customer deleted successfully");
+            } else {
+                return RequestResponse.getBADResponse("Customer not found");
+            }
+        } else {
+            return RequestResponse.getBADResponse("Invalid Customer Id");
+        }
+    }
+@Override
+public List<CustomerResponse> getAllCustomers() {
+
+    List<Customer> customers = customerRepository.findAll();
+
+    // Map Customer entities to CustomerResponse objects
+    return customers.stream()
+            .map(this::mapToCustomerResponse)
+            .collect(Collectors.toList());
+}
+    private CustomerResponse mapToCustomerResponse(Customer customer) {
+        // Map fields from Customer to CustomerResponse
+        return CustomerResponse.builder()
+                .result("OK")
+                .data(customer)
+                .success(true)
+                .build();
+    }
+
+    @Override
+    public List<CustomerResponse> searchCustomers(String query) {
+        // Create an Example object with the provided query
+        Customer exampleCustomer = new Customer();
+        exampleCustomer.setFirstName(query);
+        exampleCustomer.setLastName(query);
+        exampleCustomer.getContactInformation().setEmailAddress(query);
+        exampleCustomer.setMobileNumber(query);
+
+        // Create an ExampleMatcher to perform case-insensitive and partial matching
+        ExampleMatcher exampleMatcher = ExampleMatcher.matching()
+                .withIgnoreCase()
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+
+        // Create the Example instance
+        Example<Customer> example = Example.of(exampleCustomer, exampleMatcher);
+
+        // Perform the search using findAll(Example)
+        List<Customer> customers = customerRepository.findAll(example);
+
+        // Map Customer entities to CustomerResponse objects
+        return customers.stream()
+                .map(this::mapToCustomerResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CustomerResponse changeCustomerStatus(long id, String status) {
+        if (id <= 0) {
+            return RequestResponse.getBADResponse("Invalid Customer Id");
+        }
+
+        Optional<Customer> customerOptional = customerRepository.findById(id);
+
+        if (customerOptional.isPresent()) {
+            Customer customer = customerOptional.get();
+
+            // Update the customer status based on the provided status
+            switch (status.toUpperCase()) {
+                case "ACTIVE":
+                    customer.setCustomerStatus(CustomerStatus.ACTIVE);
+                    break;
+                case "INACTIVE":
+                    customer.setCustomerStatus(CustomerStatus.INACTIVE);
+                    break;
+                default:
+                    return RequestResponse.getBADResponse("Invalid status. Accepted values: ACTIVE, INACTIVE");
+            }
+
+            // Save the updated customer
+            customerRepository.save(customer);
+
+            return RequestResponse.getOKResponse("Customer status changed successfully");
+        } else {
+            return RequestResponse.getBADResponse("Customer not found");
+        }
+    }
     // Helper method to update non-null fields
     private void updateNonNullFields(CustomerRequest source, Customer target)
             throws IllegalAccessException, InvocationTargetException {
