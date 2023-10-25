@@ -1,9 +1,9 @@
-package com.shoshore.tinox.entity;
+package com.shoshore.tinox.model;
 
+import com.shoshore.tinox.entity.ContactInformation;
 import com.shoshore.tinox.enums.CustomerStatus;
 import com.shoshore.tinox.enums.CustomerType;
 import com.shoshore.tinox.enums.Gender;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,28 +20,16 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Entity
-public class Customer {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+public class CustomerRequest {
     private String firstName;
     private String lastName;
-    @Embedded
     private ContactInformation contactInformation;
-    @Enumerated(EnumType.STRING)
     private CustomerType customerType;
-    @Enumerated(EnumType.STRING)
     private Gender gender;
     private String idNumber;
     private String mobileNumber;
     private String jobTitle;
-    @Enumerated(EnumType.STRING)
     private CustomerStatus customerStatus;
     private LocalDate dateOfBirth;
-    private LocalDate dateCreated;
-    private LocalDate dateUpdate;
     private String language;
-    @Version
-    private long version;
 }
