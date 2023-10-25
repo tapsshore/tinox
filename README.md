@@ -18,10 +18,12 @@ Maven
 ## Clone the Repository
 
 git clone https://github.com/your-username/customer-management-system.git
+
 cd customer-management-system
 
 ## Build and Run
 Build the application using Maven:
+
 mvn clean install
 
 Run the application:
