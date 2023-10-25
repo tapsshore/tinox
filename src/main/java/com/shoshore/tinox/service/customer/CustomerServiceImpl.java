@@ -49,6 +49,16 @@ public class CustomerServiceImpl implements CustomerService{
         Customer updatedCustomer = customerRepository.save(existingPolicy);
         return RequestResponse.getOKResponse(updatedCustomer);
     }
+
+    @Override
+    public CustomerResponse getCustomerById(long id) {
+        if (id != 0L) {
+            Optional<Customer> customer = customerRepository.findCustomerById(id);
+            return customer.map(RequestResponse::getOKResponse).orElseGet(RequestResponse::getOKResponse);
+        }
+        return RequestResponse.getBADResponse("Invalid Customer Id");
+    }
+
     // Helper method to update non-null fields
     private void updateNonNullFields(CustomerRequest source, Customer target)
             throws IllegalAccessException, InvocationTargetException {

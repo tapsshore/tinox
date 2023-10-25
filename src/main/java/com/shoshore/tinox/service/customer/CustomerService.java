@@ -16,4 +16,5 @@ public interface CustomerService {
 
     CustomerResponse updateCustomerById(CustomerRequest customerRequest) throws InvocationTargetException, IllegalAccessException;
 
+    CustomerResponse getCustomerById(long id);
 }

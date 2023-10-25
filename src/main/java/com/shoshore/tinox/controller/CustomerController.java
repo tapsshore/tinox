@@ -42,4 +42,12 @@ public class CustomerController {
         return customerService.updateCustomerById(customerRequest);
     }
 
+    //get insurance  Customer
+    @GetMapping(value = "/{id}", produces = "application/json")
+    @ResponseBody
+    public CustomerResponse getCustomerById(@PathVariable("id") long id) {
+        return customerService.getCustomerById(id);
+
+    }
+
 }
