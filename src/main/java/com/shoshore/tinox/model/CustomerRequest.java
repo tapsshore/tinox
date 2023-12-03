@@ -21,6 +21,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 public class CustomerRequest {
+    private Long id;
     private String firstName;
     private String lastName;
     private ContactInformation contactInformation;

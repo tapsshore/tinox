@@ -2,7 +2,7 @@ package com.shoshore.tinox.entity;
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
-import lombok.Getter;
+import lombok.*;
 
 /**
  * @author : tapiwanasheshoshore
@@ -11,11 +11,14 @@ import lombok.Getter;
  **/
 @Embeddable
 @Getter
+@Setter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class ContactInformation {
     private String emailAddress;
-
     private String phoneNumber;
-
     @Embedded
     private Address address;
 }
