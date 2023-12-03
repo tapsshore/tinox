@@ -40,7 +40,7 @@ public class Customer {
     private CustomerStatus customerStatus;
     private LocalDate dateOfBirth;
     private LocalDate dateCreated;
-    private LocalDate dateUpdate;
+    private LocalDate dateUpdated;
     private String language;
     @Version
     private long version;

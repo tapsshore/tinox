@@ -1,5 +1,6 @@
 package com.shoshore.tinox.service.customer;
 
+import com.shoshore.tinox.entity.ContactInformation;
 import com.shoshore.tinox.entity.Customer;
 import com.shoshore.tinox.enums.CustomerStatus;
 import com.shoshore.tinox.model.CustomerRequest;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,6 +36,7 @@ public class CustomerServiceImpl implements CustomerService {
         CustomerResponse MISSING_FIELD = validateEmptyFields(customerRequest);
         if (MISSING_FIELD != null) return MISSING_FIELD;
         Customer customer = prepareCustomerRequest(customerRequest);
+        customer.setDateCreated(LocalDate.now());
         customer = customerRepository.save(customer);
         return RequestResponse.getOKResponse(customer);
     }
@@ -49,6 +52,7 @@ public class CustomerServiceImpl implements CustomerService {
             return RequestResponse.getBADResponse("Customer not found");
         }
         Customer existingPolicy = existingPolicyOptional.get();
+        existingPolicy.setDateUpdated(LocalDate.now());
         updateNonNullFields(customerRequest, existingPolicy);
 
         Customer updatedCustomer = customerRepository.save(existingPolicy);
@@ -99,25 +103,19 @@ public List<CustomerResponse> getAllCustomers() {
 
     @Override
     public List<CustomerResponse> searchCustomers(String query) {
-        // Create an Example object with the provided query
         Customer exampleCustomer = new Customer();
         exampleCustomer.setFirstName(query);
         exampleCustomer.setLastName(query);
+        if (exampleCustomer.getContactInformation() == null) {
+            exampleCustomer.setContactInformation(new ContactInformation());
+        }
         exampleCustomer.getContactInformation().setEmailAddress(query);
         exampleCustomer.setMobileNumber(query);
-
-        // Create an ExampleMatcher to perform case-insensitive and partial matching
         ExampleMatcher exampleMatcher = ExampleMatcher.matching()
                 .withIgnoreCase()
                 .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
-
-        // Create the Example instance
         Example<Customer> example = Example.of(exampleCustomer, exampleMatcher);
-
-        // Perform the search using findAll(Example)
         List<Customer> customers = customerRepository.findAll(example);
-
-        // Map Customer entities to CustomerResponse objects
         return customers.stream()
                 .map(this::mapToCustomerResponse)
                 .collect(Collectors.toList());
@@ -133,8 +131,6 @@ public List<CustomerResponse> getAllCustomers() {
 
         if (customerOptional.isPresent()) {
             Customer customer = customerOptional.get();
-
-            // Update the customer status based on the provided status
             switch (status.toUpperCase()) {
                 case "ACTIVE":
                     customer.setCustomerStatus(CustomerStatus.ACTIVE);
@@ -145,8 +141,6 @@ public List<CustomerResponse> getAllCustomers() {
                 default:
                     return RequestResponse.getBADResponse("Invalid status. Accepted values: ACTIVE, INACTIVE");
             }
-
-            // Save the updated customer
             customerRepository.save(customer);
 
             return RequestResponse.getOKResponse("Customer status changed successfully");
